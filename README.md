@@ -1,32 +1,41 @@
 [![](https://img.shields.io/nuget/v/soenneker.attributes.publicopenapiendpoint.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.attributes.publicopenapiendpoint/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.attributes.publicopenapiendpoint/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.attributes.publicopenapiendpoint/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.attributes.publicopenapiendpoint.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.attributes.publicopenapiendpoint/)
-[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.attributes.publicopenapiendpoint/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.attributes.publicopenapiendpoint/actions/workflows/codeql.yml)
 
 # Soenneker.Attributes.PublicOpenApiEndpoint
 
-For decorating controller endpoints that should be publicly accessible to see within OpenApi generation.
+A marker attribute for identifying controllers or actions that belong in a public OpenAPI document.
 
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Attributes.PublicOpenApiEndpoint
 ```
 
-## Quick start
+## Usage
+
+Mark an entire controller:
 
 ```csharp
+using Microsoft.AspNetCore.Mvc;
 using Soenneker.Attributes.PublicOpenApiEndpoint;
 
+[ApiController]
+[Route("api/status")]
 [PublicSwaggerEndpoint]
-public void HandleRequest()
+public sealed class StatusController : ControllerBase
 {
-    // This method now carries the marker metadata.
+    [HttpGet]
+    public IActionResult Get() => Ok(new { status = "available" });
 }
 ```
 
-For decorating controller endpoints that should be publicly accessible to see within OpenApi generation.
+Or apply `[PublicSwaggerEndpoint]` to individual action methods.
 
-## What you get
+## Important behavior
 
-- `PublicSwaggerEndpointAttribute` — For decorating controller endpoints that should be publicly accessible to see within OpenApi generation.
+- The public type is named `PublicSwaggerEndpointAttribute`; C# permits the shorter `[PublicSwaggerEndpoint]` syntax.
+- It can be placed on classes or methods and is inherited by default.
+- This package supplies metadata only. Installing or applying it does not configure ASP.NET Core, expose an endpoint anonymously, or filter an OpenAPI document by itself.
+- Your OpenAPI document or operation filter must explicitly look for this attribute.
+- Treat it as documentation-selection metadata, not an authorization control. Configure authentication and authorization separately.
